@@ -1,31 +1,41 @@
 let fastlog_empty = "normal! aconsole.log();\<esc>hh"
 
-function! jsFastLog(superSmart)
+function! JsFastLog(superSmart)
+    let saved_isk = &iskeyword
+    execute "set iskeyword+=."
+
     let word = ""
     if (visualmode() == 'v')
-        let word = s:get_visual_selection()
+        let word = l9#getSelectedText()
     else
         let word = expand("<cword>")
     endif
 
     if empty(word)
-            :execute fastlog_empty
+        :execute fastlog_empty
     elseif(a:superSmart == 1)
-            " lalka => console.log(`lalka=${JSON.stringify(lalka)}`);
-            :execute "normal! viWdaconsole.log(`\<esc>pa=${JSON.stringify(\<esc>pa)}`);"
+        " somevar => console.log(`somevar=${JSON.stringify(somevar)}`);
+        :execute "put ='console.log(`".word."=${JSON.stringify(".word.")}`);'"
+        :execute "-delete | normal! =="
     elseif(a:superSmart == 2)
-            " lalka => console.log(Date.now() % 10000 + 'lalka');
-            let fname = expand('%:t:r')
-            let command = "normal! viwyoconsole.log(Date.now() % 10000 + ` ".fname."::\<esc>pa`);"
-            :execute command
+        " somevar => console.log(Date.now() % 10000 + 'somevar');
+        let filename = expand('%:t:r')
+        :execute "put ='console.log(Date.now() % 10000 + ` ".filename."::".word."`);'"
+        :execute "normal! =="
     elseif(a:superSmart == 3)
-            " lalka => console.log('lalka');
-            :execute "normal! viWdaconsole.log(`\<esc>pa`);"
+        " somevar => console.log('somevar');
+        :execute "put ='console.log(''".word."'');'"
+        :execute "-delete | normal! =="
     elseif(a:superSmart == 4)
-            " lalka => console.log('lalka=', lalka);
-            :execute "normal! viWdaconsole.log('\<esc>pa=', \<esc>pa);"
-        else
-            " lalka => console.log(lalka);
-            :execute "normal! viWdaconsole.log(\<esc>pa);"
+        " somevar => console.log('somevar=', somevar);
+        :execute "put ='console.log(''".word."='', ".word.");'"
+        :execute "-delete | normal! =="
+    else
+        " somevar => console.log(somevar);
+        :execute "put ='console.log(".word.");'"
+        :execute "-delete | normal! =="
     endif
+
+
+    let &iskeyword = saved_isk 
 endfunction
