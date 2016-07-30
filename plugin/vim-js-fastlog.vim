@@ -16,7 +16,7 @@ function! JsFastLog(superSmart)
     elseif(a:superSmart == 1)
         " somevar => console.log(`somevar=${JSON.stringify(somevar)}`);
         :execute "put ='console.log(`".word."=${JSON.stringify(".word.")}`);'"
-        :execute "-delete | normal! =="
+        :execute '-delete _ | normal! =='
     elseif(a:superSmart == 2)
         " somevar => console.log(Date.now() % 10000 + 'somevar');
         let filename = expand('%:t:r')
@@ -25,17 +25,33 @@ function! JsFastLog(superSmart)
     elseif(a:superSmart == 3)
         " somevar => console.log('somevar');
         :execute "put ='console.log(''".word."'');'"
-        :execute "-delete | normal! =="
+        :execute "-delete _ | normal! =="
     elseif(a:superSmart == 4)
         " somevar => console.log('somevar=', somevar);
         :execute "put ='console.log(''".word."='', ".word.");'"
-        :execute "-delete | normal! =="
+        :execute "-delete _ | normal! =="
     else
         " somevar => console.log(somevar);
         :execute "put ='console.log(".word.");'"
-        :execute "-delete | normal! =="
+        :execute "-delete _ | normal! =="
     endif
 
-
     let &iskeyword = saved_isk 
+endfunction
+
+
+function! JsFastLog_stringify()
+    :call JsFastLog(1)
+endfunction
+
+function! JsFastLog_function()
+    :call JsFastLog(2)
+endfunction
+
+function! JsFastLog_string()
+    :call JsFastLog(3)
+endfunction
+
+function! JsFastLog_dir()
+    :call JsFastLog(4)
 endfunction
