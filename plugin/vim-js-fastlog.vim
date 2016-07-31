@@ -1,5 +1,3 @@
-let fastlog_empty = "normal! aconsole.log();\<esc>hh"
-
 function! JsFastLog(superSmart)
     let saved_isk = &iskeyword
     execute "set iskeyword+=."
@@ -10,9 +8,10 @@ function! JsFastLog(superSmart)
     else
         let word = expand("<cword>")
     endif
+    echom 'JsFastLog: word = '.word
 
     if empty(word)
-        :execute fastlog_empty
+        :execute "normal! aconsole.log();\<esc>hh"
     elseif(a:superSmart == 1)
         " somevar => console.log(`somevar=${JSON.stringify(somevar)}`);
         :execute "put ='console.log(`".word."=${JSON.stringify(".word.")}`);'"
@@ -20,6 +19,7 @@ function! JsFastLog(superSmart)
     elseif(a:superSmart == 2)
         " somevar => console.log(Date.now() % 10000 + 'somevar');
         let filename = expand('%:t:r')
+        echom "put ='console.log(Date.now() % 10000 + ` "
         :execute "put ='console.log(Date.now() % 10000 + ` ".filename."::".word."`);'"
         :execute "normal! =="
     elseif(a:superSmart == 3)
