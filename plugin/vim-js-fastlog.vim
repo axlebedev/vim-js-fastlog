@@ -39,7 +39,8 @@ function! s:JsFastLog(type, logmode)
         -delete _ | normal! ==f(l
     elseif (a:logmode ==# s:logModes.funcTimestamp)
         let filename = expand('%:t:r')
-        put ='console.log(Date.now() % 10000 + '''.filename.'::'.word.''');'
+        put ='console.log(Date.now() % 10000 + '' '.filename.'::'.word.''');'
+        normal! ==f(l
     endif
 endfunction
 
