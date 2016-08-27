@@ -1,1 +1,1 @@
-# vim-js-fastlog
+This plugin is not ready yet
