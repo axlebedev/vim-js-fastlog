@@ -19,9 +19,8 @@ let s:logModes = {
 \    'jsonStringify': 2,
 \    'showVar': 3,
 \    'funcTimestamp': 4,
+\    'string': 5,
 \}
-
-echom s:logModes.simple
 
 function! s:JsFastLog(type, logmode)
     let word = s:GetWord(a:type)
@@ -30,6 +29,9 @@ function! s:JsFastLog(type, logmode)
         execute "normal! aconsole.log();\<esc>hh"
     elseif (a:logmode ==# s:logModes.simple) " simple: 'var' => 'console.log(var);'
         put ='console.log('.word.');'
+        -delete _ | normal! ==f(l
+    elseif (a:logmode ==# s:logModes.string) " string: 'var' => 'console.log('var');'
+        put ='console.log('''.word.''');'
         -delete _ | normal! ==f(l
     elseif (a:logmode ==# s:logModes.jsonStringify) " JSON.stringify: 'var' => 'console.log('var='+JSON.stringify(var));'
         put ='console.log('''.word.'='' + JSON.stringify('.word.'));'
@@ -60,6 +62,10 @@ function! JsFastLog_function(type)
     call s:JsFastLog(a:type, s:logModes.funcTimestamp)
 endfunction
 
+function! JsFastLog_string(type)
+    call s:JsFastLog(a:type, s:logModes.string)
+endfunction
+
 nnoremap <leader>l :set operatorfunc=JsFastLog_simple<cr>g@
 vnoremap <leader>l :<C-u>call JsFastLog_simple(visualmode())<cr>
 
@@ -71,3 +77,6 @@ vnoremap <leader>lk :<C-u>call JsFastLog_variable(visualmode())<cr>
 
 nnoremap <leader>ld :set operatorfunc=JsFastLog_function<cr>g@
 vnoremap <leader>ld :<C-u>call JsFastLog_function(visualmode())<cr>
+
+nnoremap <leader>ls :set operatorfunc=JsFastLog_string<cr>g@
+vnoremap <leader>ls :<C-u>call JsFastLog_string(visualmode())<cr>
