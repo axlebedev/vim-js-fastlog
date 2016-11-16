@@ -12,6 +12,8 @@ let s:logModes = {
 \    'showVar': 3,
 \    'funcTimestamp': 4,
 \    'string': 5,
+\    'prevToThis': 6,
+\    'thisToNext': 7,
 \}
 
 function! s:GetWord(type)
@@ -38,13 +40,22 @@ function! s:MakeInner(logmode, word)
     let inner = a:word
     if (a:logmode ==# s:logModes.string) " string: 'var' => 'console.log('var');'
         let inner = s:WQ(a:word)
+
     elseif (a:logmode ==# s:logModes.jsonStringify) " JSON.stringify: 'var' => 'console.log('var='+JSON.stringify(var));'
         let inner = s:WQ(a:word.'=')." + JSON.stringify(".a:word.")"
+
     elseif (a:logmode ==# s:logModes.showVar)
         let inner = s:WQ(a:word.'=').', '.a:word
+
     elseif (a:logmode ==# s:logModes.funcTimestamp)
         let filename = expand('%:t:r')
         let inner = 'Date.now() % 10000, '.s:WQ(filename.':'.line('.').' '.a:word)
+
+    elseif (a:logmode ==# s:logModes.prevToThis)
+        let inner = s:WQ(a:word.': ').', prevProps.'.a:word.", \' => \', this.props.".a:word
+
+    elseif (a:logmode ==# s:logModes.thisToNext)
+        let inner = s:WQ(a:word.': ').', this.props.'.a:word.", \' => \', nextProps.".a:word
     endif
     return inner
 endfunction
@@ -97,6 +108,14 @@ function! JsFastLog_string(type)
     call s:JsFastLog(a:type, s:logModes.string)
 endfunction
 
+function! JsFastLog_prevToThis(type)
+    call s:JsFastLog(a:type, s:logModes.prevToThis)
+endfunction
+
+function! JsFastLog_thisToNext(type)
+    call s:JsFastLog(a:type, s:logModes.thisToNext)
+endfunction
+
 nnoremap <leader>l :set operatorfunc=JsFastLog_simple<cr>g@
 vnoremap <leader>l :<C-u>call JsFastLog_simple(visualmode())<cr>
 
@@ -111,3 +130,9 @@ vnoremap <leader>ld :<C-u>call JsFastLog_function(visualmode())<cr>
 
 nnoremap <leader>ls :set operatorfunc=JsFastLog_string<cr>g@
 vnoremap <leader>ls :<C-u>call JsFastLog_string(visualmode())<cr>
+
+nnoremap <leader>lp :set operatorfunc=JsFastLog_prevToThis<cr>g@
+vnoremap <leader>lp :<C-u>call JsFastLog_prevToThis(visualmode())<cr>
+
+nnoremap <leader>ln :set operatorfunc=JsFastLog_thisToNext<cr>g@
+vnoremap <leader>ln :<C-u>call JsFastLog_thisToNext(visualmode())<cr>
