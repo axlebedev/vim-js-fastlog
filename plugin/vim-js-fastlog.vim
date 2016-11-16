@@ -14,6 +14,7 @@ let s:logModes = {
 \    'string': 5,
 \    'prevToThis': 6,
 \    'thisToNext': 7,
+\    'separator': 8,
 \}
 
 function! s:GetWord(type)
@@ -56,6 +57,9 @@ function! s:MakeInner(logmode, word)
 
     elseif (a:logmode ==# s:logModes.thisToNext)
         let inner = s:WQ(a:word.': ').', this.props.'.a:word.", \' => \', nextProps.".a:word
+
+    elseif (a:logmode ==# s:logModes.separator)
+        let inner = s:WQ(' ========================================')
     endif
     return inner
 endfunction
@@ -75,12 +79,13 @@ endfunction
 function! s:JsFastLog(type, logmode)
     let word = s:GetWord(a:type)
 
-    if (match(word, '\v\S') == -1) " check if there is empty (whitespace-only) string
+    let wordIsEmpty = match(word, '\v\S') == -1
+    if (a:logmode !=# s:logModes.separator && wordIsEmpty)
         execute "normal! aconsole.log();\<esc>hh"
     else
         put =s:MakeString(s:MakeInner(a:logmode, word))
 
-        if (a:logmode ==# s:logModes.funcTimestamp)
+        if (a:logmode ==# s:logModes.funcTimestamp || a:logmode ==# s:logModes.separator)
             normal! ==f(l
         else
             -delete _ | normal! ==f(l
@@ -116,6 +121,10 @@ function! JsFastLog_thisToNext(type)
     call s:JsFastLog(a:type, s:logModes.thisToNext)
 endfunction
 
+function! JsFastLog_separator()
+    call s:JsFastLog('', s:logModes.separator)
+endfunction
+
 nnoremap <leader>l :set operatorfunc=JsFastLog_simple<cr>g@
 vnoremap <leader>l :<C-u>call JsFastLog_simple(visualmode())<cr>
 
@@ -136,3 +145,5 @@ vnoremap <leader>lp :<C-u>call JsFastLog_prevToThis(visualmode())<cr>
 
 nnoremap <leader>ln :set operatorfunc=JsFastLog_thisToNext<cr>g@
 vnoremap <leader>ln :<C-u>call JsFastLog_thisToNext(visualmode())<cr>
+
+nnoremap <leader>lss :call JsFastLog_separator()<cr>
