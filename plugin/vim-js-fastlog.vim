@@ -1,3 +1,19 @@
+if exists("g:loaded_js_fastlog") || &cp || v:version < 700
+    finish
+endif
+let g:loaded_js_fastlog = 1
+
+let g:js_fastlog_prefix = get(g:, 'js_fastlog_prefix', '')
+let g:js_fastlog_use_semicolon = get(g:, 'js_fastlog_use_semicolon', 1)
+
+let s:logModes = {
+\    'simple': 1,
+\    'jsonStringify': 2,
+\    'showVar': 3,
+\    'funcTimestamp': 4,
+\    'string': 5,
+\}
+
 function! s:GetWord(type)
     let saved_unnamed_register = @@
 
@@ -14,35 +30,50 @@ function! s:GetWord(type)
     return word
 endfunction
 
-let s:logModes = {
-\    'simple': 1,
-\    'jsonStringify': 2,
-\    'showVar': 3,
-\    'funcTimestamp': 4,
-\    'string': 5,
-\}
+function! s:WQ(string) " Wrap with Quotes
+    return "\'".a:string."\'"
+endfunction
+
+function! s:MakeInner(logmode, word)
+    let inner = a:word
+    if (a:logmode ==# s:logModes.string) " string: 'var' => 'console.log('var');'
+        let inner = s:WQ(a:word)
+    elseif (a:logmode ==# s:logModes.jsonStringify) " JSON.stringify: 'var' => 'console.log('var='+JSON.stringify(var));'
+        let inner = s:WQ(a:word.'=')." + JSON.stringify(".a:word.")"
+    elseif (a:logmode ==# s:logModes.showVar)
+        let inner = s:WQ(a:word.'=').', '.a:word
+    elseif (a:logmode ==# s:logModes.funcTimestamp)
+        let filename = expand('%:t:r')
+        let inner = 'Date.now() % 10000, '.s:WQ(filename.':'.line('.').' '.a:word)
+    endif
+    return inner
+endfunction
+
+function! s:MakeString(inner)
+    let string = 'console.log'
+    let string .= '('
+    if (!empty(g:js_fastlog_prefix))
+        let string .= s:WQ(g:js_fastlog_prefix).', '
+    endif
+    let string .= a:inner
+    let string .= ')'
+    let string .= (g:js_fastlog_use_semicolon ? ';' : '')
+    return string
+endfunction
 
 function! s:JsFastLog(type, logmode)
     let word = s:GetWord(a:type)
 
     if (match(word, '\v\S') == -1) " check if there is empty (whitespace-only) string
         execute "normal! aconsole.log();\<esc>hh"
-    elseif (a:logmode ==# s:logModes.simple) " simple: 'var' => 'console.log(var);'
-        put ='console.log('.word.');'
-        -delete _ | normal! ==f(l
-    elseif (a:logmode ==# s:logModes.string) " string: 'var' => 'console.log('var');'
-        put ='console.log('''.word.''');'
-        -delete _ | normal! ==f(l
-    elseif (a:logmode ==# s:logModes.jsonStringify) " JSON.stringify: 'var' => 'console.log('var='+JSON.stringify(var));'
-        put ='console.log('''.word.'='' + JSON.stringify('.word.'));'
-        -delete _ | normal! ==f(l
-    elseif (a:logmode ==# s:logModes.showVar)
-        put ='console.log('''.word.'='', '.word.');'
-        -delete _ | normal! ==f(l
-    elseif (a:logmode ==# s:logModes.funcTimestamp)
-        let filename = expand('%:t:r')
-        put ='console.log(Date.now() % 10000 + '' '.filename.'::'.word.''');'
-        normal! ==f(l
+    else
+        put =s:MakeString(s:MakeInner(a:logmode, word))
+
+        if (a:logmode ==# s:logModes.funcTimestamp)
+            normal! ==f(l
+        else
+            -delete _ | normal! ==f(l
+        endif
     endif
 endfunction
 
