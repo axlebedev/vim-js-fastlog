@@ -15,6 +15,7 @@ let s:logModes = {
 \    'prevToThis': 6,
 \    'thisToNext': 7,
 \    'separator': 8,
+\    'lineNumber': 9,
 \}
 
 function! s:GetWord(type)
@@ -60,6 +61,11 @@ function! s:MakeInner(logmode, word)
 
     elseif (a:logmode ==# s:logModes.separator)
         let inner = s:WQ(' ========================================')
+
+    elseif (a:logmode ==# s:logModes.lineNumber)
+        let filename = expand('%:t:r')
+        let inner = s:WQ(filename.':'.line('.'))
+
     endif
     return inner
 endfunction
@@ -80,7 +86,7 @@ function! s:JsFastLog(type, logmode)
     let word = s:GetWord(a:type)
 
     let wordIsEmpty = match(word, '\v\S') == -1
-    if (a:logmode !=# s:logModes.separator && wordIsEmpty)
+    if (a:logmode !=# s:logModes.separator && a:logmode !=# s:logModes.lineNumber && wordIsEmpty)
         execute "normal! aconsole.log();\<esc>hh"
     else
         put =s:MakeString(s:MakeInner(a:logmode, word))
@@ -125,6 +131,10 @@ function! JsFastLog_separator()
     call s:JsFastLog('', s:logModes.separator)
 endfunction
 
+function! JsFastLog_lineNumber()
+    call s:JsFastLog('', s:logModes.lineNumber)
+endfunction
+
 nnoremap <leader>l :set operatorfunc=JsFastLog_simple<cr>g@
 vnoremap <leader>l :<C-u>call JsFastLog_simple(visualmode())<cr>
 
@@ -147,3 +157,5 @@ nnoremap <leader>ln :set operatorfunc=JsFastLog_thisToNext<cr>g@
 vnoremap <leader>ln :<C-u>call JsFastLog_thisToNext(visualmode())<cr>
 
 nnoremap <leader>lss :call JsFastLog_separator()<cr>
+
+nnoremap <leader>lsn :call JsFastLog_lineNumber()<cr>
