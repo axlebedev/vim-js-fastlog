@@ -28,9 +28,10 @@ Examples show what you can do with 'someVar':
   // good at React development
   console.log('<prefix>', 'someVar: ', prevProps.someVar, ' => ', this.props.someVar);
   console.log('<prefix>', 'someVar: ', this.props.someVar, ' => ', nextProps.someVar);
-  // separator, lineNumber
+  // separator, lineNumber, trace
   console.log('<prefix>', ' ========================================');
   console.log('<prefix>', '<filename>:<lineNum>');
+  console.trace();
 
 ==============================================================================
 USAGE                                               *js-fastlog-usage*
