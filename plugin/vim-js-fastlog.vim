@@ -166,11 +166,11 @@ vnoremap <leader>ld :<C-u>call JsFastLog_function(visualmode())<cr>
 nnoremap <leader>ls :set operatorfunc=JsFastLog_string<cr>g@
 vnoremap <leader>ls :<C-u>call JsFastLog_string(visualmode())<cr>
 
-nnoremap <leader>lp :set operatorfunc=JsFastLog_prevToThis<cr>g@
-vnoremap <leader>lp :<C-u>call JsFastLog_prevToThis(visualmode())<cr>
+nnoremap <leader>lpp :set operatorfunc=JsFastLog_prevToThis<cr>g@
+vnoremap <leader>lpp :<C-u>call JsFastLog_prevToThis(visualmode())<cr>
 
-nnoremap <leader>ln :set operatorfunc=JsFastLog_thisToNext<cr>g@
-vnoremap <leader>ln :<C-u>call JsFastLog_thisToNext(visualmode())<cr>
+nnoremap <leader>lpn :set operatorfunc=JsFastLog_thisToNext<cr>g@
+vnoremap <leader>lpn :<C-u>call JsFastLog_thisToNext(visualmode())<cr>
 
 nnoremap <leader>lss :call JsFastLog_separator()<cr>
 nnoremap <leader>lsn :call JsFastLog_lineNumber()<cr>
