@@ -16,6 +16,7 @@ let s:logModes = {
 \    'thisToNext': 7,
 \    'separator': 8,
 \    'lineNumber': 9,
+\    'trace': 10,
 \}
 
 function! s:GetWord(type)
@@ -70,7 +71,7 @@ function! s:MakeInner(logmode, word)
     return inner
 endfunction
 
-function! s:MakeString(inner)
+function! s:MakeString(inner, isTrace)
     let string = 'console.log'
     let string .= '('
     if (!empty(g:js_fastlog_prefix))
@@ -78,6 +79,12 @@ function! s:MakeString(inner)
     endif
     let string .= a:inner
     let string .= ')'
+
+    " for trace do something special
+    if (a:isTrace)
+        let string = 'console.trace()'
+    endif
+
     let string .= (g:js_fastlog_use_semicolon ? ';' : '')
     return string
 endfunction
@@ -86,12 +93,17 @@ function! s:JsFastLog(type, logmode)
     let word = s:GetWord(a:type)
 
     let wordIsEmpty = match(word, '\v\S') == -1
-    if (a:logmode !=# s:logModes.separator && a:logmode !=# s:logModes.lineNumber && wordIsEmpty)
+    if (a:logmode !=# s:logModes.separator
+      \ && a:logmode !=# s:logModes.lineNumber
+      \ && a:logmode !=# s:logModes.trace
+      \ && wordIsEmpty)
         execute "normal! aconsole.log();\<esc>hh"
     else
-        put =s:MakeString(s:MakeInner(a:logmode, word))
+        put = s:MakeString(s:MakeInner(a:logmode, word), a:logmode ==# s:logModes.trace)
 
-        if (a:logmode ==# s:logModes.funcTimestamp || a:logmode ==# s:logModes.separator)
+        if (a:logmode ==# s:logModes.funcTimestamp
+          \ || a:logmode ==# s:logModes.separator
+          \ || a:logmode ==# s:logModes.trace)
             normal! ==f(l
         else
             -delete _ | normal! ==f(l
@@ -135,6 +147,10 @@ function! JsFastLog_lineNumber()
     call s:JsFastLog('', s:logModes.lineNumber)
 endfunction
 
+function! JsFastLog_trace()
+    call s:JsFastLog('', s:logModes.trace)
+endfunction
+
 nnoremap <leader>l :set operatorfunc=JsFastLog_simple<cr>g@
 vnoremap <leader>l :<C-u>call JsFastLog_simple(visualmode())<cr>
 
@@ -157,5 +173,5 @@ nnoremap <leader>ln :set operatorfunc=JsFastLog_thisToNext<cr>g@
 vnoremap <leader>ln :<C-u>call JsFastLog_thisToNext(visualmode())<cr>
 
 nnoremap <leader>lss :call JsFastLog_separator()<cr>
-
 nnoremap <leader>lsn :call JsFastLog_lineNumber()<cr>
+nnoremap <leader>lt :call JsFastLog_trace()<cr>
