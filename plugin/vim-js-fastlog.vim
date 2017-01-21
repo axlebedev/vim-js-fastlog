@@ -90,6 +90,11 @@ function! s:MakeString(inner, isTrace)
 endfunction
 
 function! s:JsFastLog(type, logmode)
+    if (a:type ==# 'V' || a:type ==# '')
+        normal! O// js-fastlog: sorry, but I work only with charwise selection
+        return
+    endif
+
     let word = s:GetWord(a:type)
 
     let wordIsEmpty = match(word, '\v\S') == -1
