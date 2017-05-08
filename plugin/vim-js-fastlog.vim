@@ -97,7 +97,7 @@ function! s:JsFastLog(type, logmode)
       \ && wordIsEmpty)
         execute "normal! aconsole.log();\<esc>hh"
     else
-        put = s:MakeString(s:MakeInner(a:logmode, word), a:logmode ==# s:logModes.funcTimestamp)
+        put = s:MakeString(s:MakeInner(a:logmode, word), 0)
 
         if (a:logmode ==# s:logModes.funcTimestamp
           \ || a:logmode ==# s:logModes.separator)
