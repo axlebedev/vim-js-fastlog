@@ -29,7 +29,7 @@ function! s:GetWord(type)
         return ''
     endif
 
-    let word = escape(@@, "'")
+    let word = @@
     let @@ = saved_unnamed_register
     return word
 endfunction
@@ -40,24 +40,25 @@ endfunction
 
 function! s:MakeInner(logmode, word)
     let inner = a:word
+    let escapedWord = escape(a:word, "'")
     if (a:logmode ==# s:logModes.string) " string: 'var' => 'console.log('var');'
-        let inner = s:WQ(a:word)
+        let inner = s:WQ(escapedWord)
 
     elseif (a:logmode ==# s:logModes.jsonStringify) " JSON.stringify: 'var' => 'console.log('var='+JSON.stringify(var));'
-        let inner = s:WQ(a:word.'=')." + JSON.stringify(".a:word.")"
+        let inner = s:WQ(escapedWord.'=')." + JSON.stringify(".a:word.")"
 
     elseif (a:logmode ==# s:logModes.showVar)
-        let inner = s:WQ(a:word.'=').', '.a:word
+        let inner = s:WQ(escapedWord.'=').', '.a:word
 
     elseif (a:logmode ==# s:logModes.funcTimestamp)
         let filename = expand('%:t:r')
-        let inner = 'Date.now() % 10000, '.s:WQ(filename.':'.line('.').' '.a:word)
+        let inner = 'Date.now() % 10000, '.s:WQ(filename.':'.line('.').' '.escapedWord)
 
     elseif (a:logmode ==# s:logModes.prevToThis)
-        let inner = s:WQ(a:word.': ').', prevProps.'.a:word.", \' => \', this.props.".a:word
+        let inner = s:WQ(escapedWord.': ').', prevProps.'.a:word.", \' => \', this.props.".a:word
 
     elseif (a:logmode ==# s:logModes.thisToNext)
-        let inner = s:WQ(a:word.': ').', this.props.'.a:word.", \' => \', nextProps.".a:word
+        let inner = s:WQ(escapedWord.': ').', this.props.'.a:word.", \' => \', nextProps.".a:word
 
     elseif (a:logmode ==# s:logModes.separator)
         let inner = s:WQ(' ========================================')
