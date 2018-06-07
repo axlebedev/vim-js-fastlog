@@ -52,6 +52,10 @@ function! s:MakeInner(logmode, word)
 
     elseif (a:logmode ==# s:logModes.funcTimestamp)
         let filename = expand('%:t:r')
+        if (filename == 'index')
+            let filepath = split(expand('%:r'), '/')
+            let filename = filepath[-2] . '/' . filepath[-1]
+        endif
         let inner = 'Date.now() % 10000, '.s:WQ(filename.':'.line('.').' '.escapedWord)
 
     elseif (a:logmode ==# s:logModes.prevToThis)
