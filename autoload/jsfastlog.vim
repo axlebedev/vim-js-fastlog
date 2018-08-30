@@ -71,9 +71,9 @@ endfunction
 function! s:MakeString(inner, isTrace) abort
     let string = 'console.'.(a:isTrace ? 'trace' : 'log')
     let string .= '('
-    if (!empty(g:js_fastlog_prefix))
-        let string .= s:WQ(g:js_fastlog_prefix).', '
-    endif
+    for prefix in g:js_fastlog_prefix
+        let string .= s:WQ(prefix).', '
+    endfor
     let string .= a:inner
     let string .= ')'
 

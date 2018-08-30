@@ -3,7 +3,7 @@ if exists("g:loaded_js_fastlog") || &cp || v:version < 700
 endif
 let g:loaded_js_fastlog = 1
 
-let g:js_fastlog_prefix = get(g:, 'js_fastlog_prefix', '')
+let g:js_fastlog_prefix = get(g:, 'js_fastlog_prefix', [])
 let g:js_fastlog_use_semicolon = get(g:, 'js_fastlog_use_semicolon', 1)
 
 let s:logModes = jsfastlog#GetLogModes()
