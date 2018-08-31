@@ -104,6 +104,7 @@ function! jsfastlog#JsFastLog(type, logmode) abort
             -delete _ | normal! ==f(l
         endif
     endif
+    normal! $hh
 endfunction
 
 function! jsfastlog#GetLogModes() abort
