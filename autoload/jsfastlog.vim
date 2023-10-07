@@ -80,7 +80,7 @@ def MakeString(inner: string, wrapIntoTrace: bool = false): string
     result = result .. inner
     result = result .. ')'
 
-    result = result .. (search(';') ? ';' : '')
+    result = result .. (search(';', 'n') > 0 ? ';' : '')
     return result
 enddef
 
@@ -109,8 +109,8 @@ export def JsFastLog(visualmode: string, logmode: number, wrapIntoTrace: bool = 
     endif
 
     if (wrapIntoTrace)
-        execute 'normal oconsole.trace()' .. (search(';') ? ';' : '')
-        execute 'normal oconsole.groupEnd()' .. (search(';') ? ';' : '')
+        execute 'normal oconsole.trace()' .. (search(';', 'n') > 0 ? ';' : '')
+        execute 'normal oconsole.groupEnd()' .. (search(';', 'n') > 0 ? ';' : '')
         normal kk
     endif
 
