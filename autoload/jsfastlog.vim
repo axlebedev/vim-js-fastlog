@@ -80,7 +80,7 @@ def MakeString(inner: string, wrapIntoTrace: bool = false): string
     result = result .. inner
     result = result .. ')'
 
-    result = result .. (g:js_fastlog_use_semicolon ? ';' : '')
+    result = result .. (search(';') ? ';' : '')
     return result
 enddef
 
@@ -109,8 +109,8 @@ export def JsFastLog(visualmode: string, logmode: number, wrapIntoTrace: bool = 
     endif
 
     if (wrapIntoTrace)
-        normal oconsole.trace()
-        normal oconsole.groupEnd()
+        execute 'normal oconsole.trace()' .. (search(';') ? ';' : '')
+        execute 'normal oconsole.groupEnd()' .. (search(';') ? ';' : '')
         normal kk
     endif
 
