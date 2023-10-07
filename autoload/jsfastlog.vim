@@ -1,104 +1,117 @@
-let s:logModes = {
-\    'simple': 1,
-\    'jsonStringify': 2,
-\    'showVar': 3,
-\    'funcTimestamp': 4,
-\    'string': 5,
-\    'separator': 8,
-\    'lineNumber': 9,
-\}
+vim9script
 
-function! s:GetWord(type) abort
-    let saved_unnamed_register = @@
+var logModes = {
+    'simple': 1,
+    'jsonStringify': 2,
+    'showVar': 3,
+    'funcTimestamp': 4,
+    'string': 5,
+    'separator': 8,
+    'lineNumber': 9,
+    'traceCollapsed': 10,
+}
 
-    if (a:type ==# 'v')
-        execute "normal! `<v`>y"
-    elseif (a:type ==# 'char')
-        execute "normal! `[v`]y"
-    else
-        return ''
+def GetSelectionColumns(): dict<number>
+    var pos1 = getcharpos('v')[2]
+    var pos2 = getcharpos('.')[2]
+    return {
+        start: min([pos1, pos2]),
+        end: max([pos1, pos2]),
+    }
+enddef
+
+def GetWord(): string
+    if (mode() == 'n')
+        return expand('<cword>')
     endif
 
-    let word = @@
-    let @@ = saved_unnamed_register
-    return word
-endfunction
+    var sel = GetSelectionColumns()
+    # "- 1" because sel indexes start from 1, getline starts from 0
+    return getline('.')[sel.start - 1 : sel.end - 1]
+enddef
 
-function! s:WQ(string) abort 
-    " Wrap with Quotes
-    return "\'".a:string."\'"
-endfunction
+def WQ(s: string): string
+    # Wrap with Quotes
+    return "\'" .. s .. "\'"
+enddef
 
-function! s:MakeInner(logmode, word) abort
-    let inner = a:word
-    let escapedWord = escape(a:word, "'")
-    if (a:logmode ==# s:logModes.string) " string: 'var' => 'console.log('var');'
-        let inner = s:WQ(escapedWord)
+def MakeInner(logmode: number, word: string): string
+    echom 'MakeInner(' .. logmode .. ', ' .. word .. ')'
+    var inner = word
+    var escapedWord = escape(word, "'")
+    if (logmode ==# logModes.string) # string: 'var' => 'console.log('var');'
+        return WQ(escapedWord)
+    endif
 
-    elseif (a:logmode ==# s:logModes.jsonStringify) " JSON.stringify: 'var' => 'console.log('var='+JSON.stringify(var));'
-        let inner = s:WQ(escapedWord.'=')." + JSON.stringify(".a:word.")"
+    if (logmode ==# logModes.jsonStringify) # JSON.stringify: 'var' => 'console.log('var='+JSON.stringify(var));'
+        return WQ(escapedWord .. '=') .. " + JSON.stringify(" .. word .. ")"
+    endif
 
-    elseif (a:logmode ==# s:logModes.showVar)
-        let inner = s:WQ(escapedWord.'=').', '.a:word
+    if (logmode ==# logModes.showVar)
+        return WQ(escapedWord .. '=') .. ', ' .. word
+    endif
 
-    elseif (a:logmode ==# s:logModes.funcTimestamp)
-        let filename = expand('%:t:r')
+    if (logmode ==# logModes.funcTimestamp)
+        var filename = expand('%:t:r')
         if (filename == 'index')
-            let filepath = split(expand('%:r'), '/')
-            let filename = filepath[-2] . '/' . filepath[-1]
+            var filepath = split(expand('%:r'), '/')
+            filename = filepath[-2] .. '/' .. filepath[-1]
         endif
-        let inner = 'Date.now() % 10000, '.s:WQ(filename.':'.line('.').' '.escapedWord)
-
-    elseif (a:logmode ==# s:logModes.separator)
-        let inner = s:WQ(' ========================================')
-
-    elseif (a:logmode ==# s:logModes.lineNumber)
-        let filename = expand('%:t:r')
-        let inner = s:WQ(filename.':'.line('.'))
-
+        return 'Date.now() % 10000, ' .. WQ(filename .. ':' .. line('.') .. ' ' .. escapedWord)
     endif
+
+    if (logmode ==# logModes.separator)
+        return WQ(' ========================================')
+    endif
+
+    if (logmode ==# logModes.lineNumber)
+        var filename = expand('%:t:r')
+        return WQ(filename .. ':' .. line('.'))
+    endif
+
     return inner
-endfunction
+enddef
 
-function! s:MakeString(inner, isTrace) abort
-    let string = 'console.'.(a:isTrace ? 'trace' : 'log')
-    let string .= '('
+def MakeString(inner: string): string
+    var result = 'console.log('
     for prefix in g:js_fastlog_prefix
-        let string .= s:WQ(prefix).', '
+        result = result .. WQ(prefix) .. ', '
     endfor
-    let string .= a:inner
-    let string .= ')'
+    result = result .. inner
+    result = result .. ')'
 
-    let string .= (g:js_fastlog_use_semicolon ? ';' : '')
-    return string
-endfunction
+    result = result .. (g:js_fastlog_use_semicolon ? ';' : '')
+    return result
+enddef
 
-function! jsfastlog#JsFastLog(type, logmode) abort
-    if (a:type ==# 'V' || a:type ==# '')
+export def JsFastLog(visualmode: string, logmode: number): void
+    if (visualmode ==# 'V' || visualmode ==# '')
         normal! O// js-fastlog: sorry, but I work only with charwise selection
         return
     endif
 
-    let word = s:GetWord(a:type)
+    var word = GetWord()
 
-    let wordIsEmpty = match(word, '\v\S') == -1
-    if (a:logmode !=# s:logModes.separator
-      \ && a:logmode !=# s:logModes.lineNumber
-      \ && wordIsEmpty)
+    var wordIsEmpty = match(word, '\v\S') == -1
+    if (logmode !=# logModes.separator
+         && logmode !=# logModes.lineNumber
+         && wordIsEmpty)
         execute "normal! aconsole.log();\<esc>hh"
     else
-        put = s:MakeString(s:MakeInner(a:logmode, word), 0)
+        put = MakeString(MakeInner(logmode, word))
 
-        if (a:logmode ==# s:logModes.funcTimestamp
-          \ || a:logmode ==# s:logModes.separator)
+        if (logmode ==# logModes.funcTimestamp
+            || logmode ==# logModes.separator)
             normal! ==f(l
         else
-            -delete _ | normal! ==f(l
+            :-delete _ | normal! ==f(l
         endif
     endif
-    normal! $hh
-endfunction
 
-function! jsfastlog#GetLogModes() abort
-    return s:logModes
-endfunction
+    # move cursor to end of line -2 columns
+    normal! $hh
+enddef
+
+export def GetLogModes(): dict<number>
+    return logModes
+enddef
