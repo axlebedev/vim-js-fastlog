@@ -4,8 +4,6 @@ let s:logModes = {
 \    'showVar': 3,
 \    'funcTimestamp': 4,
 \    'string': 5,
-\    'prevToThis': 6,
-\    'thisToNext': 7,
 \    'separator': 8,
 \    'lineNumber': 9,
 \}
@@ -50,12 +48,6 @@ function! s:MakeInner(logmode, word) abort
             let filename = filepath[-2] . '/' . filepath[-1]
         endif
         let inner = 'Date.now() % 10000, '.s:WQ(filename.':'.line('.').' '.escapedWord)
-
-    elseif (a:logmode ==# s:logModes.prevToThis)
-        let inner = s:WQ(escapedWord.': ').', prevProps.'.a:word.", \' => \', this.props.".a:word
-
-    elseif (a:logmode ==# s:logModes.thisToNext)
-        let inner = s:WQ(escapedWord.': ').', this.props.'.a:word.", \' => \', nextProps.".a:word
 
     elseif (a:logmode ==# s:logModes.separator)
         let inner = s:WQ(' ========================================')

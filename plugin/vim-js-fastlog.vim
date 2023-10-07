@@ -28,14 +28,6 @@ function! JsFastLog_string(type)
     call jsfastlog#JsFastLog(a:type, s:logModes.string)
 endfunction
 
-function! JsFastLog_prevToThis(type)
-    call jsfastlog#JsFastLog(a:type, s:logModes.prevToThis)
-endfunction
-
-function! JsFastLog_thisToNext(type)
-    call jsfastlog#JsFastLog(a:type, s:logModes.thisToNext)
-endfunction
-
 function! JsFastLog_separator()
     call jsfastlog#JsFastLog('', s:logModes.separator)
 endfunction
