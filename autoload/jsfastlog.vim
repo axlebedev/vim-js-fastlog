@@ -72,8 +72,8 @@ def MakeInner(logmode: number, word: string): string
     return inner
 enddef
 
-def MakeString(inner: string): string
-    var result = 'console.log('
+def MakeString(inner: string, wrapIntoTrace: bool = false): string
+    var result = 'console.' .. (wrapIntoTrace ? 'groupCollapsed' : 'log') .. '('
     for prefix in g:js_fastlog_prefix
         result = result .. WQ(prefix) .. ', '
     endfor
@@ -84,7 +84,7 @@ def MakeString(inner: string): string
     return result
 enddef
 
-export def JsFastLog(visualmode: string, logmode: number): void
+export def JsFastLog(visualmode: string, logmode: number, wrapIntoTrace: bool = false): void
     if (visualmode ==# 'V' || visualmode ==# '')
         normal! O// js-fastlog: sorry, but I work only with charwise selection
         return
@@ -98,7 +98,7 @@ export def JsFastLog(visualmode: string, logmode: number): void
          && wordIsEmpty)
         execute "normal! aconsole.log();\<esc>hh"
     else
-        put = MakeString(MakeInner(logmode, word))
+        put = MakeString(MakeInner(logmode, word), wrapIntoTrace)
 
         if (logmode ==# logModes.funcTimestamp
             || logmode ==# logModes.separator)
@@ -106,6 +106,12 @@ export def JsFastLog(visualmode: string, logmode: number): void
         else
             :-delete _ | normal! ==f(l
         endif
+    endif
+
+    if (wrapIntoTrace)
+        normal oconsole.trace()
+        normal oconsole.groupEnd()
+        normal kk
     endif
 
     # move cursor to end of line -2 columns

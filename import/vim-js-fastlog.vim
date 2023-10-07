@@ -7,8 +7,6 @@ if (exists("g:loaded_js_fastlog") || &cp || v:version < 700)
     finish
 endif
 
-echom 'loaded_js_fastlog'
-
 g:loaded_js_fastlog = 1
 
 g:js_fastlog_prefix = get(g:, 'js_fastlog_prefix', [])
@@ -26,6 +24,10 @@ enddef
 
 export def JsFastLog_variable(visualmode: string): void
     jsfastlog.JsFastLog(visualmode, logModes.showVar)
+enddef
+
+export def JsFastLog_variable_trace(visualmode: string): void
+    jsfastlog.JsFastLog(visualmode, logModes.showVar, true)
 enddef
 
 export def JsFastLog_function(visualmode: string): void
