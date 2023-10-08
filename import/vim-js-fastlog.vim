@@ -9,7 +9,7 @@ endif
 
 g:loaded_js_fastlog = 1
 
-g:js_fastlog_prefix = get(g:, 'js_fastlog_prefix', [])
+g:js_fastlog_prefix = get(g:, 'js_fastlog_prefix', '')
 
 var logModes = jsfastlog.GetLogModes()
 

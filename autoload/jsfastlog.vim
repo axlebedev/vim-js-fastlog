@@ -1,5 +1,7 @@
 vim9script
 
+import './stringToColor.vim'
+
 var logModes = {
     'simple': 1,
     'jsonStringify': 2,
@@ -76,10 +78,10 @@ def MakeInner(logmode: number, word: string): string
 enddef
 
 def MakeString(inner: string, wrapIntoTrace: bool = false): string
+    const color = stringToColor.StringToColor(expand('%:t'))
     var result = 'console.' .. (wrapIntoTrace ? 'groupCollapsed' : 'log') .. '('
-    for prefix in g:js_fastlog_prefix
-        result = result .. WQ(prefix) .. ', '
-    endfor
+    result = result .. "'%c" .. g:js_fastlog_prefix .. "', "
+    result = result .. "'background:" .. color .. "', "
     result = result .. inner
     result = result .. ')'
 
