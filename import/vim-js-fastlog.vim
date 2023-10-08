@@ -10,6 +10,10 @@ endif
 g:loaded_js_fastlog = 1
 
 g:js_fastlog_prefix = get(g:, 'js_fastlog_prefix', '')
+def JsFastLog_setPrefix(newPrefix: string): void
+    g:js_fastlog_prefix = newPrefix
+enddef
+command! -nargs=1 JsFastLogSetPrefix JsFastLog_setPrefix(<f-args>)
 
 var logModes = jsfastlog.GetLogModes()
 
