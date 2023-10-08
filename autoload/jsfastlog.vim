@@ -20,9 +20,13 @@ def GetSelectionColumns(): dict<number>
     }
 enddef
 
-def GetWord(): string
-    if (mode() == 'n')
-        return expand('<cword>')
+def GetWord(visualmode: string): string
+    if (visualmode == 'char' || visualmode == 'line')
+        var savedReg = getreg('+')
+        execute "normal! `[v`]y"
+        var res = getreg('+')
+        setreg('+', savedReg)
+        return res
     endif
 
     var sel = GetSelectionColumns()
@@ -36,7 +40,6 @@ def WQ(s: string): string
 enddef
 
 def MakeInner(logmode: number, word: string): string
-    echom 'MakeInner(' .. logmode .. ', ' .. word .. ')'
     var inner = word
     var escapedWord = escape(word, "'")
     if (logmode ==# logModes.string) # string: 'var' => 'console.log('var');'
@@ -90,7 +93,7 @@ export def JsFastLog(visualmode: string, logmode: number, wrapIntoTrace: bool = 
         return
     endif
 
-    var word = GetWord()
+    var word = GetWord(visualmode)
 
     var wordIsEmpty = match(word, '\v\S') == -1
     if (logmode !=# logModes.separator
