@@ -34,15 +34,15 @@ def GentleMap(arr: list<number>): list<string>
 enddef
 
 export def StringToColor(str: string): string
-  var numbersRedArray = GetArrayFromString(str, 0)
-  var numbersGreenArray = GetArrayFromString(str, 1)
-  var numbersBlueArray = GetArrayFromString(str, 2)
+    var numbersRedArray = GetArrayFromString(str, 0)
+    var numbersGreenArray = GetArrayFromString(str, 1)
+    var numbersBlueArray = GetArrayFromString(str, 2)
 
-  var unnormR = GetArraySum(numbersRedArray) / numbersRedArray->len()
-  var unnormG = GetArraySum(numbersGreenArray) / numbersGreenArray->len()
-  var unnormB = GetArraySum(numbersBlueArray) / numbersBlueArray->len()
+    var unnormR = GetArraySum(numbersRedArray) / numbersRedArray->len()
+    var unnormG = GetArraySum(numbersGreenArray) / numbersGreenArray->len()
+    var unnormB = GetArraySum(numbersBlueArray) / numbersBlueArray->len()
 
-  var unnormArr = [unnormR, unnormG, unnormB]
-  var arr = GentleMap(unnormArr)
-  return '#' .. arr->join('')
+    var unnormArr = [unnormR, unnormG, unnormB]
+    var arr = GentleMap(unnormArr)
+    return '#' .. arr->join('')
 enddef

@@ -78,7 +78,12 @@ def MakeInner(logmode: number, word: string): string
 enddef
 
 def MakeString(inner: string, wrapIntoTrace: bool = false): string
-    const color = stringToColor.StringToColor(expand('%:t'))
+    var filenameWithExt = expand('%:t')
+    var filenameWithoutExt = filenameWithExt[filenameWithExt->len() - (expand('%:e')->len() + 1) : ]
+    var folders = expand('%:h')->split('/')
+    const color = stringToColor.StringToColor(folders[-1] .. filenameWithoutExt)
+    # h - folder
+    # t - filename with ext
     var result = 'console.' .. (wrapIntoTrace ? 'groupCollapsed' : 'log') .. '('
     result = result .. "'%c" .. g:js_fastlog_prefix .. "', "
     result = result .. "'background:" .. color .. "', "
