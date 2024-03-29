@@ -21,6 +21,10 @@ export def JsFastLog_simple(visualmode: string): void
     jsfastlog.JsFastLog(visualmode, logModes.simple)
 enddef
 
+export def JsFastLog_simple_trace(visualmode: string): void
+    jsfastlog.JsFastLog(visualmode, logModes.simple, true)
+enddef
+
 export def JsFastLog_JSONstringify(visualmode: string): void
     jsfastlog.JsFastLog(visualmode, logModes.jsonStringify)
 enddef
@@ -39,6 +43,10 @@ enddef
 
 export def JsFastLog_string(visualmode: string): void
     jsfastlog.JsFastLog(visualmode, logModes.string)
+enddef
+
+export def JsFastLog_string_trace(visualmode: string): void
+    jsfastlog.JsFastLog(visualmode, logModes.string, true)
 enddef
 
 export def JsFastLog_separator(): void
