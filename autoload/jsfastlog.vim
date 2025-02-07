@@ -53,7 +53,11 @@ def MakeInner(logmode: number, word: string): string
     endif
 
     if (logmode ==# logModes.showVar)
-        return WQ(escapedWord .. '=') .. ', ' .. word
+        var trimmedword = word->trim()
+        if (trimmedword[0] == '{' && trimmedword[trimmedword->len() - 1] == '}')
+            return trimmedword
+        endif
+        return WQ(escapedWord .. '=') .. ', ' .. trimmedword
     endif
 
     if (logmode ==# logModes.funcTimestamp)
