@@ -57,6 +57,9 @@ def MakeInner(logmode: number, word: string): string
         if (trimmedword[0] == '{' && trimmedword[trimmedword->len() - 1] == '}')
             return trimmedword
         endif
+        if (trimmedword->stridx(', ') > -1)
+            return '{ ' .. trimmedword .. ' }'
+        endif
         return WQ(escapedWord .. '=') .. ', ' .. trimmedword
     endif
 
