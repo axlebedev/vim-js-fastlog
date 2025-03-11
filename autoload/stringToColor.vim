@@ -33,7 +33,8 @@ def GentleMap(arr: list<number>): list<string>
     return res
 enddef
 
-export def StringToColor(str: string): string
+export def StringToColor(strArg: string): string
+    var str = strArg->split('/')[-2 : ]->join('')
     var numbersRedArray = GetArrayFromString(str, 0)
     var numbersGreenArray = GetArrayFromString(str, 1)
     var numbersBlueArray = GetArrayFromString(str, 2)
