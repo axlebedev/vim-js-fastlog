@@ -25,7 +25,7 @@ def GentleMap(arr: list<number>): list<string>
     var max = arr->max() - min
     var res = []
     for i in arr
-        var val = (i - min) * 255 / max
+        var val = max == 0 ? i : (i - min) * 255 / max
         var hexstr = printf('%x', val)
         var newItem = hexstr->len() == 1 ? '0' .. hexstr : hexstr
         res->add(newItem)
